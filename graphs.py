@@ -94,9 +94,9 @@ class CC:
         self._marked = [None] * graph.V()
         self._id = [None] * graph.V()
         self._count = 0
-        for v in range(G.V()):
-            if not marked[v]:
-                self._dfs(G, v)
+        for v in range(graph.V()):
+            if not self._marked[v]:
+                self._dfs(graph, v)
                 self._count += 1
 
     def count(self) -> int:
@@ -137,5 +137,5 @@ class CC:
         self._marked[v] = True
         self._id[v] = self._count
         for w in graph.adj(v):
-            if not marked[w]:
+            if not self._marked[w]:
                 self._dfs(graph, w)
