@@ -8,7 +8,8 @@ class Graph:
 
     """
     def __init__(self, n_verts: int):
-        assert n_verts > 0, "Number of vertices should be positive integer"
+        if n_verts <= 0:
+            raise ValueError("Number of vertices should be positive integer")
         self._V = n_verts
         self._E = 0
         self._adj = [[] for _ in range(n_verts)]
