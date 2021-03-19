@@ -7,12 +7,12 @@ class Graph:
     Parameters
     ----------
     n_verts : int
-        Number of vertices
+        Number of vertices, must be > 0
 
     """
     def __init__(self, n_verts: int):
         if n_verts <= 0:
-            raise ValueError("Number of vertices should be positive integer")
+           raise ValueError("Number of vertices must be positive integer")
         self._V = n_verts
         self._E = 0
         self._adj = [[] for _ in range(n_verts)]
@@ -29,13 +29,14 @@ class Graph:
 
     def V(self):
         """
-        Return the number of vertices
+        Get the number of vertices
+
         """
         return self._V
 
     def E(self) -> int:
         """
-        Return the number of edges
+        Get the number of edges
 
         Returns
         -------
@@ -51,9 +52,9 @@ class Graph:
         Parameters
         ----------
         v : int
-            First vertex of an edge
+            First vertex of an edge,  from 0 to n_verts - 1
         w : int
-            Second vertex of an edge
+            Second vertex of an edge, from 0 to n_verts - 1
 
         """
         self._adj[v].append(w)
@@ -67,11 +68,11 @@ class Graph:
         Parameters
         ----------
         v : int
-            Vertex index
+            Vertex index, from 0 to n_verts - 1
 
         Returns
         -------
-        list
+        list of int
             Neighbors of vertex v
 
         """
