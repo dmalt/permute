@@ -28,3 +28,20 @@ def test_creation_raises_value_error_for_negative_input(n_verts):
     with raises(ValueError):
         g = Graph(n_verts)
 
+
+@given(graph_sizes(), lists(edges()))
+def test_add_edge_sets_edge_count(n_verts, edge_list):
+    g = Graph(n_verts)
+    for v, w in edge_list:
+        assume(v < n_verts and w < n_verts)
+        g.add_edge(v, w)
+    assert g.E() == len(edge_list)
+
+
+@given(graph_sizes(), vertices(), vertices())
+def test_add_edge_sets_adjacency(n_verts, v, w):
+    g = Graph(n_verts)
+    assume(v < n_verts and w < n_verts)
+    g.add_edge(v, w)
+    assert w in g.adj(v)
+    assert v in g.adj(w)
