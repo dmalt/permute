@@ -126,6 +126,12 @@ class CC:
         """
         return self._id[v]
 
+    def get_components(self) -> List[List[int]]:
+        components = [[] for _ in self._count]
+        for v, i_comp in enumerate(self._id):
+            components[i_comp].append(v)
+        return components
+
     def _dfs(self, graph: Graph, v: int):
         """Mark connected components with Depth-First Search"""
         self._marked[v] = True
