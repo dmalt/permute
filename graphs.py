@@ -34,7 +34,7 @@ class Graph:
         """
         Return the number of edges
         """
-        pass
+        return self._E
 
     def add_edge(self, v: int, w: int):
         """
