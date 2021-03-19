@@ -39,6 +39,12 @@ class Graph:
     def add_edge(self, v: int, w: int):
         """
         Add edge to the graph
+
+        Parameters
+        ----------
+        v : int
+        w : int
+
         """
         self._adj[v].append(w)
         self._adj[w].append(v)
