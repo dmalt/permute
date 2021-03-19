@@ -79,6 +79,57 @@ class Graph:
         return self._adj[v]
 
 
-if __name__ == "__main__":
-    g = Graph(4)
-    print(g)
+class CC:
+    """
+    Find connected components in a graph
+
+    Parameters
+    ----------
+    graph : Graph
+        Graph to process
+
+    """
+
+    def __init__(self, graph: Graph):
+        self._marked = [None] * graph.V()
+        self._id = [None] * graph.V()
+        self._count = 0
+        for v in range(G.V()):
+            if not marked[v]:
+                self._dfs(G, v)
+                self._count += 1
+
+    def count(self) -> int:
+        """
+        Get the number of connected components
+
+        Returns
+        -------
+        int
+            Number of connected components
+        """
+        return self._count
+
+    def id(self, v: int) -> int:
+        """
+        Given vertex, get index of its connected component
+
+        Parameters
+        ----------
+        v : int
+            Vertex, from 0 to graph.V() - 1
+
+        Returns
+        -------
+        int
+            Index of a connected component
+        """
+        return self._id[v]
+
+    def _dfs(self, graph: Graph, v: int):
+        """Mark connected components with Depth-First Search"""
+        self._marked[v] = True
+        self._id[v] = self._count
+        for w in graph.adj(v):
+            if not marked[w]:
+                self._dfs(graph, w)
