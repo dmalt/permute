@@ -50,6 +50,16 @@ class Graph:
         self._adj[w].append(v)
         self._E += 1
 
+    def adj(self, v: int):
+        """
+        Get neighbors of vertex v
+
+        Parameters
+        ----------
+        v : int
+        """
+        return self._adj[v]
+
 
 if __name__ == "__main__":
     g = Graph(4)
