@@ -1,5 +1,7 @@
 from typing import List
 
+from scipy.sparse import lil_matrix
+
 
 class Graph:
     """Adjacency-list graph representation
@@ -15,7 +17,7 @@ class Graph:
            raise ValueError("Number of vertices must be positive integer")
         self._V = n_verts
         self._E = 0
-        self._adj = [[] for _ in range(n_verts)]
+        self._adj = lil_matrix((n_verts, n_verts))
 
     def __str__(self) -> str:
         res = []
@@ -57,8 +59,8 @@ class Graph:
             Second vertex of an edge, from 0 to n_verts - 1
 
         """
-        self._adj[v].append(w)
-        self._adj[w].append(v)
+        self._adj[v, w] = True
+        self._adj[w, v] = True
         self._E += 1
 
     def adj(self, v: int) -> List[int]:
@@ -76,7 +78,7 @@ class Graph:
             Neighbors of vertex v
 
         """
-        return self._adj[v]
+        return self._adj.rows[v]
 
 
 class CC:
