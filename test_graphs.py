@@ -1,4 +1,7 @@
-from hypothesis import given, settings, assume
+from random import randint
+from time import time
+
+from hypothesis import assume, given, settings
 from hypothesis.strategies import integers, lists, tuples
 from pytest import fixture, raises
 
@@ -77,5 +80,30 @@ def test_vertices_get_correct_cc_ids(sample_graph):
     assert cc.id(3) == 1
     assert cc.id(4) == 1
     assert cc.id(5) == 1
+
+
+def test_get_components(sample_graph):
+    cc = CC(sample_graph)
+    comps = cc.get_components()
+    assert comps[0] == [0, 1, 2]
+    assert comps[1] == [3, 4, 5]
+
+
+def test_connected_components_on_large_graph():
+    n = int(1e6)
+    g = Graph(n)
+    for _ in range(n):
+        v = randint(0, n - 1)
+        w = randint(0, n - 1)
+        g.add_edge(v, w)
+    t1 = time()
+    cc = CC(g)
+    print(time() - t1)
+
+
+
+# def test_spatio_temporal_graph():
+#     stg = SpatioTemporalAdjacencyGraph()
+
 
 # --------------------------------------------------------------- #
