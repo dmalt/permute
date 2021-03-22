@@ -133,7 +133,7 @@ class CC:
         return self._id[v]
 
     def get_components(self) -> List[List[int]]:
-        components = [[] for _ in self._count]
+        components = [[] for _ in range(self._count)]
         for v, i_comp in enumerate(self._id):
             components[i_comp].append(v)
         return components
