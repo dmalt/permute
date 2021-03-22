@@ -130,6 +130,15 @@ class CC:
         return self._id[v]
 
     def get_components(self) -> List[List[int]]:
+        """
+        Get connected components
+
+        Returns
+        -------
+        list of int
+            Vertices for each connected component
+
+        """
         components = [[] for _ in range(self._count)]
         for v, i_comp in enumerate(self._id):
             components[i_comp].append(v)
