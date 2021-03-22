@@ -1,6 +1,6 @@
 from hypothesis import given, settings, assume
 from hypothesis.strategies import integers, lists, tuples
-from pytest import raises, fixture
+from pytest import fixture, raises
 
 from graphs import Graph, CC
 
