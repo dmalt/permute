@@ -1,6 +1,6 @@
 from typing import List
 
-from scipy.sparse import lil_matrix
+from scipy.sparse import lil_matrix, csr_matrix
 
 
 class Graph:
@@ -79,6 +79,9 @@ class Graph:
 
         """
         return self._adj.rows[v]
+
+    def get_adj_matrix(self):
+        return csr_matrix(self._adj)
 
 
 class CC:
