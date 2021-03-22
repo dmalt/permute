@@ -1,6 +1,7 @@
 from typing import List
 
 from scipy.sparse import lil_matrix, csr_matrix
+from scipy.sparse.csgraph import connected_components
 
 
 class Graph:
@@ -97,13 +98,9 @@ class CC:
     """
 
     def __init__(self, graph: Graph):
-        self._marked = [None] * graph.V()
-        self._id = [None] * graph.V()
-        self._count = 0
-        for v in range(graph.V()):
-            if not self._marked[v]:
-                self._dfs(graph, v)
-                self._count += 1
+        self._count, self._id = connected_components(
+            graph.get_adj_matrix(), directed=False, return_labels=True
+        )
 
     def count(self) -> int:
         """
