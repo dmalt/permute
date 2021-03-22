@@ -12,9 +12,10 @@ class Graph:
         Number of vertices, must be > 0
 
     """
+
     def __init__(self, n_verts: int):
         if n_verts <= 0:
-           raise ValueError("Number of vertices must be positive integer")
+            raise ValueError("Number of vertices must be positive integer")
         self._V = n_verts
         self._E = 0
         self._adj = lil_matrix((n_verts, n_verts))
