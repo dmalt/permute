@@ -106,4 +106,50 @@ def test_connected_components_on_large_graph():
 #     stg = SpatioTemporalAdjacencyGraph()
 
 
+# ----------- test MaskedSpatioTemporalAdjacencyGraph ----------- #
+@fixture(params=[1, 2])
+def spatio_temporal_graph_params(request):
+    grid_connectivity = lil_matrix([
+        [0, 1, 0, 0],
+        [1, 0, 1, 0],
+        [0, 1, 0, 1],
+        [0, 0, 1, 0],
+    ], dtype=bool)
+    test_case = request.param
+    params = {}
+    if test_case == 1:
+        params['adj'] = grid_connectivity
+        n_spaces = params['adj'].shape[0]
+        n_times = 2
+        params['mask'] = np.ones((n_times, n_spaces), dtype=bool)
+        params['E'] = 10
+        params['cc_count'] = 1
+    elif test_case == 2:
+        params['adj'] = grid_connectivity
+        n_spaces = params['adj'].shape[0]
+        n_times = 3
+        params['mask'] = np.ones((n_times, n_spaces), dtype=bool)
+        params['mask'][1, :] = False
+        params['E'] = 6
+        params['cc_count'] = 2
+    yield params
+
+
+def test_spatio_temporal_graph(spatio_temporal_graph_params):
+    """
+    Test creation and CC retrieval from masked spatio-temporal graph
+
+    - test the number of vertices in created graph is correct
+    - test the number of edges is correct
+    - test the number of retrieved connected components is correct
+
+    """
+    mask = spatio_temporal_graph_params['mask']
+    adjacency = spatio_temporal_graph_params['adj']
+    n_times, n_spaces = mask.shape
+    stg = MaskedSpatioTemporalAdjacencyGraph(adjacency, mask)
+    assert stg.V() == len(mask.nonzero()[0])
+    assert stg.E() == spatio_temporal_graph_params['E']
+    cc = CC(stg)
+    assert cc.count() == spatio_temporal_graph_params['cc_count']
 # --------------------------------------------------------------- #
