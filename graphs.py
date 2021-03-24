@@ -1,3 +1,4 @@
+"""Graph processing utilities"""
 from typing import List
 
 from scipy.sparse import lil_matrix, csr_matrix
@@ -46,6 +47,7 @@ class Graph:
         -------
         int
             Number of vertices
+
         """
         return self._E
 
