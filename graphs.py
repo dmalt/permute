@@ -61,9 +61,10 @@ class Graph:
             Second vertex of an edge, from 0 to n_verts - 1
 
         """
-        self._adj[v, w] = True
-        self._adj[w, v] = True
-        self._E += 1
+        if not self._adj[v, w] and not self._adj[w, v]:
+            self._adj[v, w] = True
+            self._adj[w, v] = True
+            self._E += 1
 
     def adj(self, v: int) -> List[int]:
         """
@@ -144,10 +145,4 @@ class CC:
             components[i_comp].append(v)
         return components
 
-    def _dfs(self, graph: Graph, v: int):
-        """Mark connected components with Depth-First Search"""
-        self._marked[v] = True
-        self._id[v] = self._count
-        for w in graph.adj(v):
-            if not self._marked[w]:
-                self._dfs(graph, w)
+
