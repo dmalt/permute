@@ -86,7 +86,7 @@ class Graph:
         return self._adj.rows[v]
 
     def get_adj_matrix(self):
-        return csr_matrix(self._adj)
+        return self._adj
 
 
 class CC:
