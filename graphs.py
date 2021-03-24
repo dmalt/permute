@@ -1,5 +1,5 @@
 """Graph processing utilities"""
-from typing import List
+from typing import List, Tuple
 
 from scipy.sparse import lil_matrix, csr_matrix
 from scipy.sparse.csgraph import connected_components
@@ -185,15 +185,47 @@ class MaskedSpatioTemporalAdjacencyGraph(Graph):
                 neigh_vert = self.mat2lin(i_time + 1, i_space)
                 self.add_edge(cur_vert, neigh_vert)
 
-    def lin2mat(self, index):
+    def lin2mat(self, index: int) -> int:
+        """
+        Convert linear index to matrix index
+
+        Parameters
+        ----------
+        index: int
+            Linear index
+
+        Returns
+        -------
+        time_index, space_index: int
+            Matrix indices
+
+        """
         return self._map_lin2mat[index]
 
-    def mat2lin(self, i_time, i_space):
+    def mat2lin(self, i_time: int, i_space: int) -> int:
+        """
+        Convert matrix index to linear index
+        """
         return self._map_mat2lin[(i_time, i_space)]
 
-    def components2mat(self, components):
+    def components2mat(
+        self, components: List[List[int]]
+    ) -> List[List[Tuple[int]]]:
         """
         Convert components` notation from linear to matrix
+
+        Parameters
+        ----------
+        components: list of list of int
+            Connected components in 'linear' notation: each index corresponds
+            to a vertex in a processed graph; such vertex indices can't be used
+            directly to get time and space indices from the original mask
+
+        Returns
+        -------
+        list of list of tuple of int
+            Connected components in 'matrix' notation: each vertex is encoded
+            by its time and space index.
 
         """
         converted_components = []
