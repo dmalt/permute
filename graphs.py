@@ -1,6 +1,7 @@
 """Graph processing utilities"""
 from typing import List, Tuple
 
+import numpy as np
 from scipy.sparse import lil_matrix, csr_matrix
 from scipy.sparse.csgraph import connected_components
 
@@ -223,14 +224,16 @@ class MaskedSpatioTemporalAdjacencyGraph(Graph):
 
         Returns
         -------
-        list of list of tuple of int
+        list of tuple of ndarray
             Connected components in 'matrix' notation: each vertex is encoded
             by its time and space index.
 
         """
         converted_components = []
         for component in components:
-            converted_components.append([self.lin2mat(i) for i in component])
+            times = np.array([self.lin2mat(i)[0] for i in component])
+            spaces = np.array([self.lin2mat(i)[1] for i in component])
+            converted_components.append((times, spaces))
         return converted_components
 
     def _create_maps(self, mask):

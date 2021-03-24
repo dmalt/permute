@@ -2,6 +2,7 @@ from random import randint
 from time import time
 
 import numpy as np
+from numpy.testing import assert_equal
 from hypothesis import assume, given, settings
 from hypothesis.strategies import integers, lists, tuples
 from pytest import fixture, raises
@@ -13,11 +14,14 @@ from graphs import CC, Graph, MaskedSpatioTemporalAdjacencyGraph
 # ------------------------- test Graph  ------------------------- #
 MAX_VERTS = 1e5
 
+
 def graph_sizes():
     return integers(min_value=1, max_value=MAX_VERTS)
 
+
 def vertices():
     return integers(min_value=0, max_value=MAX_VERTS - 1)
+
 
 def edges():
     return tuples(vertices(), vertices())
@@ -56,6 +60,7 @@ def test_add_edge_sets_adjacency(n_verts, v, w):
     assert w in g.adj(v)
     assert v in g.adj(w)
 
+
 # --------------------------------------------------------------- #
 
 
@@ -73,9 +78,11 @@ def sample_graph():
     g.add_edge(4, 5)
     return g
 
+
 def test_number_of_components_correct(sample_graph):
     cc = CC(sample_graph)
     assert cc.count() == 2
+
 
 def test_vertices_get_correct_cc_ids(sample_graph):
     cc = CC(sample_graph)
@@ -103,35 +110,56 @@ def test_connected_components_on_large_graph():
         w = randint(0, n - 1)
         g.add_edge(v, w)
     cc = CC(g)
+
+
 # --------------------------------------------------------------- #
 
 
 # ----------- test MaskedSpatioTemporalAdjacencyGraph ----------- #
 @fixture(params=[1, 2])
 def spatio_temporal_graph_params(request):
-    grid_connectivity = lil_matrix([
-        [0, 1, 0, 0],
-        [1, 0, 1, 0],
-        [0, 1, 0, 1],
-        [0, 0, 1, 0],
-    ], dtype=bool)
+    grid_connectivity = lil_matrix(
+        [
+            [0, 1, 0, 0],
+            [1, 0, 1, 0],
+            [0, 1, 0, 1],
+            [0, 0, 1, 0],
+        ],
+        dtype=bool,
+    )
     test_case = request.param
     params = {}
     if test_case == 1:
-        params['adj'] = grid_connectivity
-        n_spaces = params['adj'].shape[0]
+        params["adj"] = grid_connectivity
+        n_spaces = params["adj"].shape[0]
         n_times = 2
-        params['mask'] = np.ones((n_times, n_spaces), dtype=bool)
-        params['E'] = 10
-        params['cc_count'] = 1
+        params["mask"] = np.ones((n_times, n_spaces), dtype=bool)
+        params["E"] = 10
+        params["cc_count"] = 1
+        params["cc_mat"] = [
+            (
+                np.array([0, 0, 0, 0, 1, 1, 1, 1]),
+                np.array([0, 1, 2, 3, 0, 1, 2, 3]),
+            )
+        ]
     elif test_case == 2:
-        params['adj'] = grid_connectivity
-        n_spaces = params['adj'].shape[0]
+        params["adj"] = grid_connectivity
+        n_spaces = params["adj"].shape[0]
         n_times = 3
-        params['mask'] = np.ones((n_times, n_spaces), dtype=bool)
-        params['mask'][1, :] = False
-        params['E'] = 6
-        params['cc_count'] = 2
+        params["mask"] = np.ones((n_times, n_spaces), dtype=bool)
+        params["mask"][1, :] = False
+        params["E"] = 6
+        params["cc_count"] = 2
+        params["cc_mat"] = [
+            (
+                np.array([0, 0, 0, 0]),
+                np.array([0, 1, 2, 3]),
+            ),
+            (
+                np.array([2, 2, 2, 2]),
+                np.array([0, 1, 2, 3]),
+            ),
+        ]
     yield params
 
 
@@ -142,14 +170,17 @@ def test_spatio_temporal_graph(spatio_temporal_graph_params):
     - test the number of vertices in created graph is correct
     - test the number of edges is correct
     - test the number of retrieved connected components is correct
+    - test actual components are correct (converted to matrix idx)
 
     """
-    mask = spatio_temporal_graph_params['mask']
-    adjacency = spatio_temporal_graph_params['adj']
+    params = spatio_temporal_graph_params
+    mask = params["mask"]
+    adjacency = params["adj"]
     n_times, n_spaces = mask.shape
     stg = MaskedSpatioTemporalAdjacencyGraph(adjacency, mask)
     assert stg.V() == len(mask.nonzero()[0])
-    assert stg.E() == spatio_temporal_graph_params['E']
+    assert stg.E() == params["E"]
     cc = CC(stg)
-    assert cc.count() == spatio_temporal_graph_params['cc_count']
+    assert cc.count() == params["cc_count"]
+    assert_equal(stg.components2mat(cc.get_components()), params['cc_mat'])
 # --------------------------------------------------------------- #
