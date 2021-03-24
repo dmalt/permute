@@ -1,11 +1,13 @@
 from random import randint
 from time import time
 
+import numpy as np
 from hypothesis import assume, given, settings
 from hypothesis.strategies import integers, lists, tuples
 from pytest import fixture, raises
+from scipy.sparse import lil_matrix
 
-from graphs import Graph, CC
+from graphs import CC, Graph, MaskedSpatioTemporalAdjacencyGraph
 
 
 # ------------------------- test Graph  ------------------------- #
