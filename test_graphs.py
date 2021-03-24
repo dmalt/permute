@@ -36,8 +36,12 @@ def test_creation_raises_value_error_for_negative_input(n_verts):
 @given(graph_sizes(), lists(edges()))
 def test_add_edge_sets_edge_count(n_verts, edge_list):
     g = Graph(n_verts)
+    seen_edges = []
     for v, w in edge_list:
         assume(v < n_verts and w < n_verts)
+        edge = sorted([v, w])
+        assume(edge not in seen_edges)
+        seen_edges.append(edge)
         g.add_edge(v, w)
     assert g.E() == len(edge_list)
 
@@ -96,14 +100,8 @@ def test_connected_components_on_large_graph():
         v = randint(0, n - 1)
         w = randint(0, n - 1)
         g.add_edge(v, w)
-    t1 = time()
     cc = CC(g)
-    print(time() - t1)
-
-
-
-# def test_spatio_temporal_graph():
-#     stg = SpatioTemporalAdjacencyGraph()
+# --------------------------------------------------------------- #
 
 
 # ----------- test MaskedSpatioTemporalAdjacencyGraph ----------- #
