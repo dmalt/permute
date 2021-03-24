@@ -146,3 +146,62 @@ class CC:
         return components
 
 
+class MaskedSpatioTemporalAdjacencyGraph(Graph):
+    """
+    Spatio-temporal connectivity graph with mask for 'active' vertices
+
+    Active vertices can be used for clustering above-threshold activity of some
+    sort.
+
+    Parameters
+    ----------
+    spatial_adjacency : scipy.sparce.spmatrix, shape (n_spaces, n_spaces)
+        Adjacency matrix;
+    mask : ndarray of bool, shape (n_times, n_spaces)
+        Mask of 'active' time-space points
+
+    """
+
+    def __init__(self, spatial_adjacency, mask):
+        spatial_adjacency = lil_matrix(spatial_adjacency)
+        self._create_maps(mask)
+
+        super().__init__(len(self._map_lin2mat))
+        for cur_vert in self._map_lin2mat:
+            i_time, i_space = self.lin2mat(cur_vert)
+            # add spatial neighbors
+            for v in spatial_adjacency.rows[i_space]:
+                if not mask[i_time, v]:
+                    continue
+                neigh_vert = self.mat2lin(i_time, v)
+                self.add_edge(cur_vert, neigh_vert)
+            # add temporal neighbors
+            if i_time > 0 and mask[i_time - 1, i_space]:
+                neigh_vert = self.mat2lin(i_time - 1, i_space)
+                self.add_edge(cur_vert, neigh_vert)
+            if i_time < mask.shape[0] - 1 and mask[i_time + 1, i_space]:
+                neigh_vert = self.mat2lin(i_time + 1, i_space)
+                self.add_edge(cur_vert, neigh_vert)
+
+    def lin2mat(self, index):
+        return self._map_lin2mat[index]
+
+    def mat2lin(self, i_time, i_space):
+        return self._map_mat2lin[(i_time, i_space)]
+
+    def components2mat(self, components):
+        """
+        Convert components` notation from linear to matrix
+
+        """
+        converted_components = []
+        for component in components:
+            converted_components.append([self.lin2mat(i) for i in component])
+        return converted_components
+
+    def _create_maps(self, mask):
+        self._map_lin2mat = {}
+        self._map_mat2lin = {}
+        for i, (j, k) in enumerate(zip(*mask.nonzero())):
+            self._map_lin2mat[i] = (j, k)
+            self._map_mat2lin[(j, k)] = i
