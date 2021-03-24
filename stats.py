@@ -19,3 +19,17 @@ def compute_cluster_level_stats(stat_map, clusters):
     """
 
     return [stat_map[cluster].sum() for cluster in clusters]
+
+
+def mixed_linear_model(target, regressors, formula, key="confidence"):
+    """
+    TODO
+
+    Formula example: target ~ is_correct * confidence
+
+    """
+    data = regressors.copy()
+    data["target"] = target
+    md = smf.mixedlm(formula, data=data, groups=regressors[groups_key])
+    mdf = md.fit()
+    return mdf.tvalues
