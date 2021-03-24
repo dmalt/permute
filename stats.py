@@ -21,6 +21,20 @@ def compute_cluster_level_stats(stat_map, clusters):
     return [stat_map[cluster].sum() for cluster in clusters]
 
 
+def compute_cluster_p_value(cluster_stat, perm_max_stats, one_tailed=False):
+    """
+    Compute p value for a cluter given its distribution for 0-hypothesis
+
+    """
+    if one_tailed:
+        return sum(ms > cluster_stat for ms in perm_max_stats) / len(
+            perm_max_stats
+        )
+    else:
+        return (
+            sum(ms > cluster_stat for ms in perm_max_stats)
+            + sum(ms < -cluster_stat for ms in perm_max_stats)
+        ) / len(perm_max_stats)
 def mixed_linear_model(target, regressors, formula, key="confidence"):
     """
     TODO
