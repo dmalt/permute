@@ -2,7 +2,7 @@
 from typing import List, Tuple
 
 import numpy as np
-from scipy.sparse import lil_matrix, csr_matrix
+from scipy.sparse import lil_matrix
 from scipy.sparse.csgraph import connected_components
 
 
