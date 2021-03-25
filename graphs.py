@@ -151,16 +151,16 @@ class CC:
 
 class MaskedSpatioTemporalAdjacencyGraph(Graph):
     """
-    Spatio-temporal connectivity graph with mask for 'active' vertices
+    Graph defined by selected vertices from spatio-temporal connectivity matrix
 
-    Active vertices can be used for clustering above-threshold activity of some
-    sort.
+    Mask marks vertices above or below certain threshold. Vertices above and
+    below threshold are not connected together.
 
     Parameters
     ----------
     spatial_adjacency : scipy.sparce.spmatrix, shape (n_spaces, n_spaces)
         Adjacency matrix;
-    mask : ndarray of bool, shape (n_times, n_spaces)
+    mask : ndarray of -1, 0, 1, shape (n_times, n_spaces)
         Mask of 'active' time-space points
 
     """
@@ -168,21 +168,24 @@ class MaskedSpatioTemporalAdjacencyGraph(Graph):
     def __init__(self, spatial_adjacency, mask):
         spatial_adjacency = lil_matrix(spatial_adjacency)
         self._create_maps(mask)
+        n_verts = len(mask.nonzero()[0])
+        n_times = mask.shape[0]
 
-        super().__init__(len(self._map_lin2mat))
+        super().__init__(n_verts)
         for cur_vert in self._map_lin2mat:
             i_time, i_space = self.lin2mat(cur_vert)
+            cur_mask = mask[i_time, i_space]
             # add spatial neighbors
             for v in spatial_adjacency.rows[i_space]:
-                if not mask[i_time, v]:
+                if cur_mask != mask[i_time, v]:
                     continue
                 neigh_vert = self.mat2lin(i_time, v)
                 self.add_edge(cur_vert, neigh_vert)
             # add temporal neighbors
-            if i_time > 0 and mask[i_time - 1, i_space]:
+            if i_time > 0 and mask[i_time - 1, i_space] == cur_mask:
                 neigh_vert = self.mat2lin(i_time - 1, i_space)
                 self.add_edge(cur_vert, neigh_vert)
-            if i_time < mask.shape[0] - 1 and mask[i_time + 1, i_space]:
+            if i_time < n_times - 1 and mask[i_time + 1, i_space] == cur_mask:
                 neigh_vert = self.mat2lin(i_time + 1, i_space)
                 self.add_edge(cur_vert, neigh_vert)
 

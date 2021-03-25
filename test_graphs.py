@@ -116,7 +116,7 @@ def test_connected_components_on_large_graph():
 
 
 # ----------- test MaskedSpatioTemporalAdjacencyGraph ----------- #
-@fixture(params=[1, 2])
+@fixture(params=[1, 2, 3])
 def spatio_temporal_graph_params(request):
     grid_connectivity = lil_matrix(
         [
@@ -133,7 +133,7 @@ def spatio_temporal_graph_params(request):
         params["adj"] = grid_connectivity
         n_spaces = params["adj"].shape[0]
         n_times = 2
-        params["mask"] = np.ones((n_times, n_spaces), dtype=bool)
+        params["mask"] = np.ones((n_times, n_spaces))
         params["E"] = 10
         params["cc_count"] = 1
         params["cc_mat"] = [
@@ -146,13 +146,35 @@ def spatio_temporal_graph_params(request):
         params["adj"] = grid_connectivity
         n_spaces = params["adj"].shape[0]
         n_times = 3
-        params["mask"] = np.ones((n_times, n_spaces), dtype=bool)
-        params["mask"][1, :] = False
+        params["mask"] = np.ones((n_times, n_spaces))
+        params["mask"][1, :] = 0
         params["E"] = 6
         params["cc_count"] = 2
         params["cc_mat"] = [
             (
                 np.array([0, 0, 0, 0]),
+                np.array([0, 1, 2, 3]),
+            ),
+            (
+                np.array([2, 2, 2, 2]),
+                np.array([0, 1, 2, 3]),
+            ),
+        ]
+    elif test_case == 3:
+        params["adj"] = grid_connectivity
+        n_spaces = params["adj"].shape[0]
+        n_times = 3
+        params["mask"] = np.ones((n_times, n_spaces))
+        params["mask"][1, :] *= -1
+        params["E"] = 9
+        params["cc_count"] = 3
+        params["cc_mat"] = [
+            (
+                np.array([0, 0, 0, 0]),
+                np.array([0, 1, 2, 3]),
+            ),
+            (
+                np.array([1, 1, 1, 1]),
                 np.array([0, 1, 2, 3]),
             ),
             (
