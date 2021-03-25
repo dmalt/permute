@@ -1,4 +1,13 @@
 """Statistical utils"""
+from itertools import product
+
+import numpy as np
+from tqdm import trange
+import statsmodels.formula.api as smf
+
+from graphs import CC, MaskedSpatioTemporalAdjacencyGraph
+
+
 def compute_cluster_level_stats(stat_map, clusters):
     """
     Compute cluster-level statistic.
@@ -35,7 +44,10 @@ def compute_cluster_p_value(cluster_stat, perm_max_stats, one_tailed=False):
             sum(ms > cluster_stat for ms in perm_max_stats)
             + sum(ms < -cluster_stat for ms in perm_max_stats)
         ) / len(perm_max_stats)
-def mixed_linear_model(target, regressors, formula, key="confidence"):
+
+def mixed_linear_model(
+    target, regressors, formula, groups_key, key="confidence"
+):
     """
     TODO
 
@@ -55,7 +67,7 @@ def find_clusters(data, regressors, stat_fun, adjacency, keys, thresh):
     n_times, n_spaces = stats_map.shape
     t_maps = {}
     for i_time, i_space in product(range(n_times), range(n_spaces)):
-        t_vals = stat_fun(data[:, i_time, i_space], regressors, formula)
+        t_vals = stat_fun(data[:, i_time, i_space], regressors)
         # compute t_map for each regressor since fitting regression is the most
         # time-consuming part and we get all t-values for free after it
         for key in keys:
@@ -64,6 +76,7 @@ def find_clusters(data, regressors, stat_fun, adjacency, keys, thresh):
 
     # ---------------------------- find clusters ---------------------------- #
     clusters = {}
+    cluster_stats = {}
     for key in keys:
         mask = t_maps[key] > thresh
         mstag = MaskedSpatioTemporalAdjacencyGraph(adjacency, mask)
@@ -119,13 +132,13 @@ def spatio_temporal_permutation_test_for_correlations(
         data, regressors, stat_fun, adjacency, keys, thresh
     )
     # --------------------------- do permutations --------------------------- #
-    max_cluster_stats = {k: [] for key in keys}
+    max_cluster_stats = {key: [] for key in keys}
     for _ in trange(n_perm):
         regressors_perm = (
-            all_dfs.groupby(group_key).sample(frac=1).reset_index(drop=True)
+            regressors.groupby(group_key).sample(frac=1).reset_index(drop=True)
         )
         _, _, cluster_stats = find_clusters(
-            data, regressors, stat_fun, adjacency, keys, thresh
+            data, regressors_perm, stat_fun, adjacency, keys, thresh
         )
         for key in keys:
             max_cluster_stats[key].append(max(cluster_stats[key]))
