@@ -1,0 +1,14 @@
+name: permute
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3
+  - ipython
+  - scipy
+  - tqdm
+  - statsmodels
+  - pandas
+  - joblib
+  - pip:
+      - mne

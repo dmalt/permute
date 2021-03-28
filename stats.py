@@ -4,6 +4,7 @@ from itertools import product
 import numpy as np
 from tqdm import trange, tqdm
 import statsmodels.formula.api as smf
+from joblib import Parallel, delayed
 
 from graphs import CC, MaskedSpatioTemporalAdjacencyGraph
 
@@ -48,9 +49,7 @@ def compute_cluster_p_value(cluster_stat, cluster_stats_H0, tail):
             cluster_stats_H0
         )
 
-def mixed_linear_model(
-    target, regressors, formula, groups_key, key="confidence"
-):
+
 def mixed_linear_model(target, regressors, formula, groups_key):
     """
     TODO
@@ -70,12 +69,24 @@ def find_clusters(data, regressors, stat_fun, adjacency, keys, thresh, tail):
     stats_map = np.empty(data.shape[1:])
     n_times, n_spaces = stats_map.shape
     t_maps = {key: np.empty((n_times, n_spaces)) for key in keys}
-    for i_time, i_space in tqdm(product(range(n_times), range(n_spaces))):
-        t_vals = stat_fun(data[:, i_time, i_space], regressors)
-        # compute t_map for each regressor since fitting regression is the most
-        # time-consuming part and we get all t-values for free after it
+    # for i_time, i_space in tqdm(product(range(n_times), range(n_spaces))):
+    #     t_vals = stat_fun(data[:, i_time, i_space], regressors)
+    #     # compute t_map for each regressor since fitting regression is the most
+    #     # time-consuming part and we get all t-values for free after it
+    #     for key in keys:
+    #         t_maps[key][i_time, i_space] = t_vals[key]
+    t_vals = Parallel(n_jobs=-1)(
+        delayed(stat_fun)(data[:, i_time, i_space], regressors)
+        for i_time, i_space in tqdm(
+            product(range(n_times), range(n_spaces)), total=n_times * n_spaces
+        )
+    )
+
+    for k, (i_time, i_space) in tqdm(
+        enumerate(product(range(n_times), range(n_spaces)))
+    ):
         for key in keys:
-            t_maps[key][i_time, i_space] = t_vals[key]
+            t_maps[key][i_time, i_space] = t_vals[k][key]
     # ----------------------------------------------------------------------- #
 
     # ---------------------------- find clusters ---------------------------- #
