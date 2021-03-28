@@ -1,2 +1,5 @@
 .hypothesis
 __pycache__
+*.npy
+*.pkl
+*.fif
