@@ -202,13 +202,13 @@ if __name__ == "__main__":
     from functools import partial
 
     print("Reading data ...")
-    data = np.load("data.npy")
+    data = np.load("./data/data.npy")
     print("Done")
     data_short = np.sqrt(
         data[:, 100:103, 0::2] ** 2 + data[:, 100:103, 1::2] ** 2
     )
-    all_dfs = pd.read_pickle("regressors.pkl")
-    info = read_info("info.fif")
+    all_dfs = pd.read_pickle("./data/regressors.pkl")
+    info = read_info("./data/info.fif")
     adjacency, ch_names = find_ch_adjacency(info, ch_type="mag")
     stat_fun = partial(
         mixed_linear_model,
