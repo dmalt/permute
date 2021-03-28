@@ -10,5 +10,6 @@ dependencies:
   - statsmodels
   - pandas
   - joblib
+  - pip
   - pip:
       - mne
